@@ -1,0 +1,105 @@
+tasks:
+    - name: "Setup AWS Credentials"
+    description: "Configure AWS credentials (if not using file-type secrets)"
+    command: |
+      echo "Checking AWS credentials setup..."
+      
+      # Check if credentials are already mounted as files
+      if [ -f ~/.aws/credentials ] && [ -f ~/.aws/config ]; then
+        echo "✅ AWS credential files already exist (likely mounted from Gitpod Flex secrets)"
+        echo "Current AWS configuration:"
+        aws configure list
+      else
+        # Fall back to environment variables if files don't exist
+        echo "AWS credential files not found, attempting to create from environment variables..."
+        mkdir -p ~/.aws
+        
+        if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+          cat > ~/.aws/credentials << EOL
+      [default]
+      aws_access_key_id = ${AWS_ACCESS_KEY_ID}
+      aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
+      EOL
+          echo "AWS credentials configured from environment variables!"
+        else
+          echo "⚠️ AWS credentials not found in environment variables."
+          echo "Please set up AWS credentials using Gitpod Flex file-type secrets or environment variables."
+          echo "See README.md for instructions."
+        fi
+        
+        # Set default region if provided
+        if [ -n "$AWS_REGION" ]; then
+          cat > ~/.aws/config << EOL
+      [default]
+      region = ${AWS_REGION}
+      output = json
+      EOL
+          echo "AWS region set to ${AWS_REGION}"
+        else
+          # Default to us-east-1 if not specified
+          cat > ~/.aws/config << EOL
+      [default]
+      region = us-east-1
+      output = json
+      EOL
+          echo "AWS region defaulted to us-east-1"
+        fi
+      fi
+      
+      # Verify AWS configuration
+      echo "Verifying AWS authentication..."
+      aws sts get-caller-identity || echo "⚠️ AWS authentication failed. Please check your credentials."
+
+  - name: "Terraform Init"
+    description: "Initialize Terraform configuration"
+    command: |
+      echo "Initializing Terraform..."
+      terraform init
+
+  - name: "Terraform Validate"
+    description: "Validate Terraform configuration"
+    command: |
+      echo "Validating Terraform configuration..."
+      terraform validate
+
+  - name: "Terraform Plan"
+    description: "Create Terraform execution plan"
+    command: |
+      echo "Creating Terraform execution plan..."
+      terraform plan -out=tfplan
+
+  - name: "Terraform Apply"
+    description: "Apply Terraform changes (creates resources)"
+    command: |
+      echo "⚠️ This will create REAL AWS resources that may incur costs!"
+      echo "Applying Terraform plan..."
+      terraform apply -auto-approve
+      echo "Resources created successfully!"
+      echo "Don't forget to run 'Terraform Destroy' when you're done to avoid unnecessary charges."
+
+  - name: "Terraform Destroy"
+    description: "Destroy all Terraform-managed resources (cleanup)"
+    command: |
+      echo "⚠️ This will DESTROY all resources created by Terraform!"
+      echo "Proceeding with resource destruction in 5 seconds..."
+      sleep 5
+      terraform destroy -auto-approve
+      echo "All resources have been destroyed."
+
+  - name: "Verify AWS Authentication"
+    description: "Verify AWS credentials are working correctly"
+    command: |
+      echo "Verifying AWS authentication..."
+      aws sts get-caller-identity
+      echo "Listing available AWS regions..."
+      aws ec2 describe-regions --query "Regions[].RegionName" --output table
+
+  - name: "Full Cleanup"
+    description: "Ensure all AWS resources are destroyed and clean local state"
+    command: |
+      echo "Performing full cleanup..."
+      terraform destroy -auto-approve
+      rm -f terraform.tfstate*
+      rm -f .terraform.lock.hcl
+      rm -rf .terraform/
+      echo "Cleanup complete. All resources destroyed and local state removed."
