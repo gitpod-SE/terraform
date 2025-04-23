@@ -1,5 +1,3 @@
-# Variables for the Terraform AWS VPC Demo
-
 variable "aws_region" {
   description = "AWS region to deploy resources"
   type        = string
@@ -7,15 +5,9 @@ variable "aws_region" {
 }
 
 variable "project_name" {
-  description = "Name of the project for resource naming"
+  description = "Name of the project, used for tagging resources"
   type        = string
   default     = "terraform-demo"
-}
-
-variable "environment" {
-  description = "Environment name (e.g., dev, staging, prod)"
-  type        = string
-  default     = "demo"
 }
 
 variable "vpc_cidr" {
@@ -33,22 +25,17 @@ variable "public_subnet_cidrs" {
 variable "private_subnet_cidrs" {
   description = "CIDR blocks for the private subnets"
   type        = list(string)
-  default     = ["10.0.11.0/24", "10.0.12.0/24"]
+  default     = ["10.0.3.0/24", "10.0.4.0/24"]
 }
 
 variable "availability_zones" {
-  description = "Availability zones to use in the region"
+  description = "Availability zones for the subnets"
   type        = list(string)
   default     = ["us-east-1a", "us-east-1b"]
 }
 
 variable "create_nat_gateway" {
-  description = "Whether to create NAT Gateways (incurs cost)"
+  description = "Whether to create NAT Gateways for private subnets (incurs costs)"
   type        = bool
-  default     = true
-  
-  validation {
-    condition     = can(tobool(var.create_nat_gateway))
-    error_message = "The create_nat_gateway variable must be a boolean value (true/false)."
-  }
+  default     = false
 }

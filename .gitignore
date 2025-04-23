@@ -23,18 +23,8 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-# Ignore plan output files
-tfplan
-*.tfplan
-
-# Ignore lock files
+# Ignore .terraform.lock.hcl
 .terraform.lock.hcl
 
-# Ignore .DS_Store files
-.DS_Store
-
-# Ignore .env files that might contain secrets
+# Ignore any local environment files
 .env
-
-# Ignore AWS credentials file that might be created
-.aws/credentials

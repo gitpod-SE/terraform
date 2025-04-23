@@ -1,0 +1,24 @@
+tasks:
+  - name: Setup
+    init: |
+      mkdir -p .terraform
+      echo "Terraform AWS Demo Environment Ready"
+    command: |
+      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+        echo "AWS credentials are set. Authentication should work."
+      else
+        echo "AWS credentials are not set. Please set the following environment variables:"
+        echo "AWS_ACCESS_KEY_ID"
+        echo "AWS_SECRET_ACCESS_KEY"
+        echo "AWS_DEFAULT_REGION (optional, defaults to us-east-1)"
+      fi
+      terraform init
+
+vscode:
+  extensions:
+    - hashicorp.terraform
+    - ms-azuretools.vscode-docker
+
+ports:
+  - port: 8080
+    onOpen: ignore

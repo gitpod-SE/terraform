@@ -7,22 +7,18 @@
     },
     "ghcr.io/devcontainers/features/aws-cli:1": {
       "version": "latest"
-    },
-    "ghcr.io/devcontainers/features/git:1": {}
+    }
   },
   "customizations": {
     "vscode": {
       "extensions": [
         "hashicorp.terraform",
-        "ms-azuretools.vscode-docker",
-        "github.vscode-github-actions"
+        "ms-azuretools.vscode-docker"
       ],
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash",
-        "editor.formatOnSave": true
+        "terminal.integrated.defaultProfile.linux": "bash"
       }
     }
   },
-  "remoteUser": "vscode",
-  "postCreateCommand": "terraform --version && aws --version"
+  "remoteUser": "vscode"
 }
