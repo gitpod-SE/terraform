@@ -3,18 +3,18 @@ services:
     name: "Terraform Init"
     description: "Initialize Terraform configuration"
     triggeredBy:
-      - event: postEnvironmentStart
-      - event: fileChange
-        filePattern: "*.tf"
-        ignore: "*.tfvars"
-        debounce: 5000
+      - postEnvironmentStart
+      - fileChange:
+          pattern: "*.tf"
+          ignore: "*.tfvars"
+          debounce: 5000
     commands:
       start: "terraform init"
   aws_auth_setup:
     name: "AWS Authentication Setup"
     description: "Set up AWS authentication using environment variables"
     triggeredBy:
-      - event: postEnvironmentStart
+      - postEnvironmentStart
     commands:
       start: |
         if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
@@ -25,17 +25,25 @@ services:
           echo "AWS_SECRET_ACCESS_KEY"
           echo "AWS_DEFAULT_REGION (optional, defaults to us-east-1)"
         fi
+
 tasks:
   terraform_validate:
     name: "Terraform Validate"
     description: "Validate Terraform configuration"
-    init: terraform validate
-    command: terraform validate
     triggeredBy:
-      - event: fileChange
-        filePattern: "*.tf"
-        ignore: "*.tfvars"
-        debounce: 5000
+      - fileChange:
+          pattern: "*.tf"
+          ignore: "*.tfvars"
+          debounce: 5000
+    command: "terraform validate"
+  terraform_plan:
+    name: "Terraform Plan"
+    description: "Create a Terraform execution plan"
+    command: "terraform plan"
+  terraform_apply:
+    name: "Terraform Apply"
+    description: "Apply the Terraform plan to create/update infrastructure"
+    command: "terraform apply"
   terraform_cleanup:
     name: "Terraform Cleanup"
     description: "Destroy all AWS resources created by Terraform"
@@ -44,3 +52,11 @@ tasks:
       echo "Press Ctrl+C within 5 seconds to cancel."
       sleep 5
       terraform destroy -auto-approve
+  terraform_output:
+    name: "Terraform Output"
+    description: "Display output values from Terraform state"
+    command: "terraform output"
+  terraform_refresh:
+    name: "Terraform Refresh"
+    description: "Update local state file against real resources"
+    command: "terraform refresh"
