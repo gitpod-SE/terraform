@@ -3,18 +3,18 @@ services:
     name: "Terraform Init"
     description: "Initialize Terraform configuration"
     triggeredBy:
-      - postEnvironmentStart
-      - fileChange:
-          pattern: "*.tf"
-          ignore: "*.tfvars"
-          debounce: 5000
+      - event: postEnvironmentStart
+      - event: fileChange
+        filePattern: "*.tf"
+        ignore: "*.tfvars"
+        debounce: 5000
     commands:
       start: "terraform init"
   aws_auth_setup:
     name: "AWS Authentication Setup"
     description: "Set up AWS authentication using environment variables"
     triggeredBy:
-      - postEnvironmentStart
+      - event: postEnvironmentStart
     commands:
       start: |
         if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
@@ -25,17 +25,17 @@ services:
           echo "AWS_SECRET_ACCESS_KEY"
           echo "AWS_DEFAULT_REGION (optional, defaults to us-east-1)"
         fi
-
 tasks:
   terraform_validate:
     name: "Terraform Validate"
     description: "Validate Terraform configuration"
+    init: terraform validate
+    command: terraform validate
     triggeredBy:
-      - fileChange:
-          pattern: "*.tf"
-          ignore: "*.tfvars"
-          debounce: 5000
-    command: "terraform validate"
+      - event: fileChange
+        filePattern: "*.tf"
+        ignore: "*.tfvars"
+        debounce: 5000
   terraform_cleanup:
     name: "Terraform Cleanup"
     description: "Destroy all AWS resources created by Terraform"
