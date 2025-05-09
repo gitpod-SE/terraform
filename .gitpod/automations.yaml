@@ -4,10 +4,7 @@ services:
     description: "Initialize Terraform configuration"
     triggeredBy:
       - postEnvironmentStart
-      - fileChange:
-          pattern: "*.tf"
-          ignore: "*.tfvars"
-          debounce: 5000
+      - manual
     commands:
       start: "terraform init"
   aws_auth_setup:
@@ -31,10 +28,7 @@ tasks:
     name: "Terraform Validate"
     description: "Validate Terraform configuration"
     triggeredBy:
-      - fileChange:
-          pattern: "*.tf"
-          ignore: "*.tfvars"
-          debounce: 5000
+      - manual
     command: "terraform validate"
   terraform_plan:
     name: "Terraform Plan"
